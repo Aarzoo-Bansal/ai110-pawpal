@@ -102,22 +102,26 @@ if st.button("Add task"):
 
 owner = st.session_state.owner
 if owner.get_all_tasks():
-    filter_col1, filter_col2 = st.columns(2)
+    filter_col1, filter_col2, filter_col3 = st.columns(3)
     with filter_col1:
         pet_filter_options = ["All"] + [p.name for p in owner.pets] + ["None"]
         selected_filter = st.selectbox("Filter by pet", options=pet_filter_options, key="pet_filter")
     with filter_col2:
         status_filter_options = ["All"] + [s.name.capitalize() for s in TaskStatus]
         selected_status = st.selectbox("Filter by status", options=status_filter_options, key="status_filter")
+    with filter_col3:
+        task_list_date = st.date_input("Filter by date", value=date.today(), key="task_list_date")
 
     all_tasks = owner.get_all_tasks()
+    filtered_tasks = [t for t in all_tasks if schedular._falls_on_date(t, task_list_date)]
+
     if selected_filter == "All":
-        filtered_tasks = all_tasks
+        pass
     elif selected_filter == "None":
-        filtered_tasks = [t for t in all_tasks if t.pet is None]
+        filtered_tasks = [t for t in filtered_tasks if t.pet is None]
     else:
         pet = next(p for p in owner.pets if p.name == selected_filter)
-        filtered_tasks = schedular.filter_by_pet(all_tasks, pet)
+        filtered_tasks = schedular.filter_by_pet(filtered_tasks, pet)
 
     if selected_status != "All":
         status = TaskStatus[selected_status.upper()]
@@ -149,12 +153,19 @@ else:
 st.divider()
 
 st.subheader("Build Schedule")
-st.caption("This button should call your scheduling logic once you implement it.")
+from datetime import timedelta
+schedule_date = st.date_input(
+    "Schedule for date",
+    value=date.today(),
+    min_value=date.today(),
+    max_value=date.today() + timedelta(days=10),
+    key="schedule_date",
+)
 
 if st.button("Generate schedule"):
     scheduler = Scheduler()
     all_tasks = owner.get_all_tasks()
-    pending = scheduler.get_today_tasks(all_tasks)
+    pending = scheduler.get_tasks_for_date(all_tasks, schedule_date)
 
     if not pending:
         st.warning("No pending tasks to schedule.")

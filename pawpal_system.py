@@ -104,10 +104,23 @@ class Owner:
 
 
 class Scheduler:
-    def get_today_tasks(self, tasks: list[Task]) -> list[Task]:
-        """Return all pending tasks scheduled for today."""
-        today = date.today()
-        return [t for t in tasks if t.status == TaskStatus.PENDING and t.date == today]
+    def _falls_on_date(self, task: Task, target_date: date) -> bool:
+        """Check if a task should appear on the given date based on its frequency."""
+        if task.date == target_date:
+            return True
+        if task.date > target_date:
+            return False
+        if task.frequency == "daily":
+            return True
+        if task.frequency == "weekly":
+            return task.date.weekday() == target_date.weekday()
+        return False
+
+    def get_tasks_for_date(self, tasks: list[Task], target_date: date = None) -> list[Task]:
+        """Return all pending tasks that should appear on the given date (defaults to today)."""
+        if target_date is None:
+            target_date = date.today()
+        return [t for t in tasks if t.status == TaskStatus.PENDING and self._falls_on_date(t, target_date)]
 
     def sort_by_time(self, tasks: list[Task]) -> list[Task]:
         """Return tasks sorted by scheduled time."""
