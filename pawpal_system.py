@@ -123,8 +123,10 @@ class Scheduler:
         return [t for t in tasks if t.status == TaskStatus.PENDING and self._falls_on_date(t, target_date)]
 
     def sort_by_time(self, tasks: list[Task]) -> list[Task]:
-        """Return tasks sorted by scheduled time."""
-        return sorted(tasks, key=lambda t: t.time)
+        """Return tasks sorted by scheduled time. Tasks without a time go last, sorted by priority."""
+        timed = [t for t in tasks if t.time is not None]
+        untimed = [t for t in tasks if t.time is None]
+        return sorted(timed, key=lambda t: t.time) + sorted(untimed, key=lambda t: t.priority.value, reverse=True)
 
     def sort_by_priority(self, tasks: list[Task]) -> list[Task]:
         """Return tasks sorted by priority, highest first."""
@@ -139,9 +141,10 @@ class Scheduler:
         return [t for t in tasks if t.status == status]
 
     def detect_conflicts(self, tasks: list[Task]) -> list[str]:
-        """Return a list of conflict messages for tasks with overlapping time ranges."""
+        """Return a list of conflict messages for tasks with overlapping time ranges. Skips tasks without a time."""
         conflicts = []
-        sorted_tasks = self.sort_by_time(tasks)
+        timed_tasks = [t for t in tasks if t.time is not None]
+        sorted_tasks = self.sort_by_time(timed_tasks)
         for i in range(len(sorted_tasks)):
             task_a = sorted_tasks[i]
             start_a = datetime.combine(date.today(), task_a.time)
