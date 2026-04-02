@@ -26,8 +26,9 @@ Your final app should:
 
 - **Composite sorting**: Tasks are sorted by time first, then by priority within the same time slot, so critical tasks always surface first.
 - **Duration-aware conflict detection**: Detects overlapping tasks using time ranges (start + duration), not just exact-time matches.
-- **Filter by pet and status**: Task list can be filtered by a specific pet, unassigned tasks, or by status (Pending, Completed, Postponed, Cancelled).
-- **Recurring task handling**: When a daily or weekly task is marked complete, a new pending copy is automatically created for the next occurrence.
+- **Filter by pet, status, and date**: Task list can be filtered by a specific pet, unassigned tasks, status (Pending, Completed, Postponed, Cancelled), or date. Date filter defaults to today.
+- **Smart recurring tasks**: Daily and weekly tasks automatically appear on future schedules without needing to be completed first. Completing a recurring task also clones a new pending copy for the next occurrence.
+- **Date-based schedule generation**: Generate schedules for any date from today up to 10 days in the future.
 - **Task completion from schedule**: Checkboxes in the schedule view let users mark tasks complete, updating status in real time.
 - **Past date validation**: Prevents creating tasks with a date in the past.
 
