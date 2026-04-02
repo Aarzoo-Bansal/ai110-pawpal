@@ -22,6 +22,15 @@ Your final app should:
 - Display the plan clearly (and ideally explain the reasoning)
 - Include tests for the most important scheduling behaviors
 
+## Smarter Scheduling
+
+- **Composite sorting**: Tasks are sorted by time first, then by priority within the same time slot, so critical tasks always surface first.
+- **Duration-aware conflict detection**: Detects overlapping tasks using time ranges (start + duration), not just exact-time matches.
+- **Filter by pet and status**: Task list can be filtered by a specific pet, unassigned tasks, or by status (Pending, Completed, Postponed, Cancelled).
+- **Recurring task handling**: When a daily or weekly task is marked complete, a new pending copy is automatically created for the next occurrence.
+- **Task completion from schedule**: Checkboxes in the schedule view let users mark tasks complete, updating status in real time.
+- **Past date validation**: Prevents creating tasks with a date in the past.
+
 ## Getting started
 
 ### Setup

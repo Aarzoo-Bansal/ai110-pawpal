@@ -2,7 +2,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 from enum import Enum
 import uuid
-from datetime import date, time, timedelta
+from datetime import date, datetime, time, timedelta
 
 
 class Category(Enum):
@@ -46,6 +46,7 @@ class Task:
     duration_minutes: int
     priority: Priority
     time: time  # datetime.time object
+    date: date = field(default_factory=date.today)
     frequency: str = "once"  # "daily", "weekly", "once"
     pet: Optional[Pet] = None
     status: TaskStatus = TaskStatus.PENDING
@@ -104,8 +105,9 @@ class Owner:
 
 class Scheduler:
     def get_today_tasks(self, tasks: list[Task]) -> list[Task]:
-        """Return all pending tasks from the given list."""
-        return [t for t in tasks if t.status == TaskStatus.PENDING]
+        """Return all pending tasks scheduled for today."""
+        today = date.today()
+        return [t for t in tasks if t.status == TaskStatus.PENDING and t.date == today]
 
     def sort_by_time(self, tasks: list[Task]) -> list[Task]:
         """Return tasks sorted by scheduled time."""
@@ -124,16 +126,21 @@ class Scheduler:
         return [t for t in tasks if t.status == status]
 
     def detect_conflicts(self, tasks: list[Task]) -> list[str]:
-        """Return a list of conflict messages for tasks scheduled at the same time."""
+        """Return a list of conflict messages for tasks with overlapping time ranges."""
         conflicts = []
         sorted_tasks = self.sort_by_time(tasks)
         for i in range(len(sorted_tasks)):
+            task_a = sorted_tasks[i]
+            start_a = datetime.combine(date.today(), task_a.time)
+            end_a = start_a + timedelta(minutes=task_a.duration_minutes)
             for j in range(i + 1, len(sorted_tasks)):
-                task_a = sorted_tasks[i]
                 task_b = sorted_tasks[j]
-                if task_a.time == task_b.time:
+                start_b = datetime.combine(date.today(), task_b.time)
+                end_b = start_b + timedelta(minutes=task_b.duration_minutes)
+                if start_a < end_b and start_b < end_a:
                     conflicts.append(
-                        f"Conflict: '{task_a.title}' and '{task_b.title}' are both scheduled at {task_a.time.strftime('%H:%M')}"
+                        f"Conflict: '{task_a.title}' ({task_a.time.strftime('%H:%M')}-{end_a.strftime('%H:%M')}) "
+                        f"overlaps with '{task_b.title}' ({task_b.time.strftime('%H:%M')}-{end_b.strftime('%H:%M')})"
                     )
         return conflicts
 
@@ -141,12 +148,14 @@ class Scheduler:
         """Create and return a new instance of a recurring task, or None if not recurring."""
         if not task.is_recurring():
             return None
+        next_date = task.date + timedelta(days=1 if task.frequency == "daily" else 7)
         new_task = Task(
             title=task.title,
             category=task.category,
             duration_minutes=task.duration_minutes,
             priority=task.priority,
             time=task.time,
+            date=next_date,
             frequency=task.frequency,
             pet=task.pet,
             notes=task.notes,
