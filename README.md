@@ -32,6 +32,26 @@ Your final app should:
 - **Task completion from schedule**: Checkboxes in the schedule view let users mark tasks complete, updating status in real time.
 - **Past date validation**: Prevents creating tasks with a date in the past.
 
+## Testing PawPal+
+
+Run the test suite with:
+
+```bash
+python -m pytest tests/test_pawpal.py -v
+```
+
+The test suite includes **22 tests** covering:
+
+- **Task status lifecycle**: marking tasks as completed, postponed, and cancelled
+- **Owner/pet management**: adding and removing pets and tasks
+- **Sorting**: sort by time, sort by priority, and composite time+priority sorting
+- **Date-based scheduling**: tasks appear on the correct date, completed tasks are excluded, empty list handling
+- **Recurring tasks**: daily tasks appear on future dates, weekly tasks match the correct weekday, one-time tasks don't repeat, cloned tasks get the correct next date and a new ID
+- **Conflict detection**: overlapping time ranges are flagged, non-overlapping tasks pass, back-to-back tasks don't conflict
+- **Filtering**: filter by pet and filter by status
+
+**Confidence Level: 4/5 stars** - Core scheduling logic is thoroughly tested. The remaining gap is UI-level integration testing (Streamlit interactions), which is not covered by unit tests.
+
 ## Getting started
 
 ### Setup
