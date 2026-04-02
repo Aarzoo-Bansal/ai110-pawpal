@@ -2,15 +2,32 @@
 
 ## 1. System Design
 
+1. Pawpal should allow a user to add their pets.
+2. Pawpal should allow users to add tasks, prioritize them, and input their available time.
+3. As per the details entered by the user, the agent should create a schedule for the user.
+4. If the pet needs medication, then the user should be able to add those and set reminders.
 **a. Initial design**
 
-- Briefly describe your initial UML design.
 - What classes did you include, and what responsibilities did you assign to each?
+
+        1. A owner class which contains name, email, available time windows
+        2. A pet class which holds pet name, species, breed, age, weight, health conditions. (An owner may have more than one pet).
+        3. A task class which belongs to a Owner and optinally linked to pet
+        4. Schedular 
 
 **b. Design changes**
 
 - Did your design change during implementation?
 - If yes, describe at least one change and why you made it.
+
+      The following changes were made after the initial creation:
+      
+      1. I made changes during the plan phase. I asked the LLM to generate the plan and classes. First, it suggested to have Task belong to Pet class. When I questioned it about why Pet class and not User, as user is someone who creates a task and may link to a particular pet if needed, it made the change. 
+      2. It also added pet as a string in Task class which was later converted to a reference to pet object, so that the changes in pet are reflected everywhere in the app and there is no stale data.
+      3. Changed time field from string to datetime in Task class.
+      4. Earlier for task only completed status was used. The code just checked if the task is completed or not. Converted it to use pre-defined status (Pending, Completed, Postponed, Cancelled) through enum.
+      5. Changee priority from string to enum to support "Low", "Medium", "High", "Critical", so that the user doesn't enter any incorrect value.
+
 
 ---
 

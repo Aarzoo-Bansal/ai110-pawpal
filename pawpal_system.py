@@ -5,6 +5,22 @@ import uuid
 from datetime import date, time, timedelta
 
 
+class Category(Enum):
+    FEEDING = "feeding"
+    EXERCISE = "exercise"
+    MEDICATION = "medication"
+    GROOMING = "grooming"
+    ENRICHMENT = "enrichment"
+    OTHER = "other"
+
+
+class Priority(Enum):
+    LOW = 1
+    MEDIUM = 2
+    HIGH = 3
+    CRITICAL = 4
+
+
 class TaskStatus(Enum):
     PENDING = "pending"
     COMPLETED = "completed"
@@ -26,9 +42,9 @@ class Pet:
 @dataclass
 class Task:
     title: str
-    category: str  # "feeding", "exercise", "medication", "grooming", "enrichment", "other"
+    category: Category
     duration_minutes: int
-    priority: str  # "low", "medium", "high", "critical"
+    priority: Priority
     time: time  # datetime.time object
     frequency: str = "once"  # "daily", "weekly", "once"
     pet: Optional[Pet] = None
@@ -83,8 +99,7 @@ class Scheduler:
         return sorted(tasks, key=lambda t: t.time)
 
     def sort_by_priority(self, tasks: list[Task]) -> list[Task]:
-        priority_order = {"critical": 0, "high": 1, "medium": 2, "low": 3}
-        return sorted(tasks, key=lambda t: priority_order.get(t.priority, 4))
+        return sorted(tasks, key=lambda t: t.priority.value, reverse=True)
 
     def filter_by_pet(self, tasks: list[Task], pet: Pet) -> list[Task]:
         return [t for t in tasks if t.pet == pet]
